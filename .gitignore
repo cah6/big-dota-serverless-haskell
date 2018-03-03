@@ -1,0 +1,9 @@
+.stack-work/
+big-dota-serverless-haskell.cabal
+.idea/
+*.iml
+cabal.config
+package-lock.json
+.serverless/
+node_modules/
+*~
