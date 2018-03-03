@@ -1,0 +1,11 @@
+service: big-dota
+provider:
+  name: aws
+  runtime: nodejs6.10
+
+functions:
+  queue-replay-ids:
+    handler: big-dota-serverless-haskell.queue-replay-ids-exe
+
+plugins:
+  - serverless-haskell

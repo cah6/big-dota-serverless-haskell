@@ -1,0 +1,7 @@
+resolver: lts-10.6
+
+packages:
+- .
+
+extra-deps:
+- serverless-haskell-0.4.0

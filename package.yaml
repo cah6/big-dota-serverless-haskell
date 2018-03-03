@@ -1,0 +1,58 @@
+name:                big-dota-serverless-haskell
+version:             0.1.0.0
+github:              "githubuser/test-serverless-java"
+license:             BSD3
+author:              "Author name here"
+maintainer:          "example@example.com"
+copyright:           "2018 Author name here"
+
+extra-source-files:
+- README.md
+- ChangeLog.md
+
+# Metadata used when publishing your package
+# synopsis:            Short description of your package
+# category:            Web
+
+# To avoid duplicated efforts in documentation and dealing with the
+# complications of embedding Haddock markup inside cabal files, it is
+# common to point users to the README.md file.
+description:         Please see the README on Github at <https://github.com/githubuser/test-serverless-java#readme>
+
+dependencies:
+- base >= 4.7 && < 5
+- aeson
+- serverless-haskell
+- turtle
+- attoparsec
+- text
+- bytestring
+- clock
+- formatting
+- unordered-containers
+- foldl
+
+library:
+  source-dirs: src
+
+executables:
+  queue-replay-ids-exe:
+    main:                QueueReplayIds.hs
+    source-dirs:         app
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+#    dependencies:
+#    - big-dota-serverless-haskell
+
+#tests:
+#  test-serverless-java-test:
+#    main:                Spec.hs
+#    source-dirs:         test
+#    ghc-options:
+#    - -threaded
+#    - -rtsopts
+#    - -with-rtsopts=-N
+#    dependencies:
+#    - test-serverless-java
