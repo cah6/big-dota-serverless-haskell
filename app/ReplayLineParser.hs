@@ -3,8 +3,9 @@ module ReplayLineParser where
 
 import qualified Data.ByteString as B
 -- import qualified Data.Attoparsec as A
-import Data.Attoparsec.Text (Parser, Result, digit, string, many1, parse, try, takeTill, satisfy)
+import Data.Attoparsec.Text (Parser, Result, digit, string, many1, parseOnly, try, takeTill, satisfy)
 import Data.Text (Text)
+import Data.String (fromString)
 
 import Data.DataTypes
 
@@ -17,8 +18,12 @@ import Data.DataTypes
 
 example = "DOTA_COMBATLOG_PURCHASE|1530647|hero=npc_dota_hero_omniknight|item=item_guardian_greaves|"
 
-runParser :: Text -> Result ParsedEvent
-runParser = parse parseEvent
+runParser :: Text -> Maybe ParsedEvent
+runParser = handleResult . parseOnly parseEvent
+
+handleResult :: Either String ParsedEvent -> Maybe ParsedEvent
+handleResult (Left err) = Nothing
+handleResult (Right parsedEvent) = Just parsedEvent
 
 parseEvent :: Parser ParsedEvent
 parseEvent = try (E1 <$> parseItemPurchase)

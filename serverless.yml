@@ -1,4 +1,10 @@
 service: big-dota
+
+package:
+  include:
+    - ~/.config/gcloud/application_default_credentials.json
+    - ../big-dota-replay-parser-java/build/libs/dota-replay-parser-1.0-SNAPSHOT.jar
+
 provider:
   name: aws
   runtime: nodejs6.10

@@ -7,12 +7,13 @@ module Data.DataTypes where
 
 import Data.Text (Text)
 
-import Data.Aeson (ToJSON, FromJSON, parseJSON, toJSON, withObject, (.:), object, (.=))
+import Data.Aeson (Value, ToJSON, FromJSON, parseJSON, toJSON, withObject, (.:), object, (.=))
 import GHC.Generics
 
 data ParsedEvent =
     E1 ItemPurchase
   | E2 GoldChange
+  | UnknownEvent Text
   deriving (Show, Generic)
 
 
@@ -45,15 +46,17 @@ data ItemPurchase = ItemPurchase {
 
 instance FromJSON ItemPurchase where
   parseJSON = withObject "ItemPurchase" $ \o -> do
-    timestamp <- o .: "timestamp"
-    hero      <- o .: "hero"
-    item      <- o .: "item"
+    timestamp <- o .: "timestamp_millis"
+    hero      <- o .: "hero_name"
+    item      <- o .: "item_name"
     return $ ItemPurchase timestamp hero item
 
 instance ToJSON ItemPurchase where
     toJSON (ItemPurchase timestamp hero item) =
-        object ["timestamp" .= timestamp, "hero" .= hero, "item" .= item]
+        object ["timestamp_millis" .= timestamp, "hero_name" .= hero, "item_name" .= item, mkEventType "item_purchased"]
 
+mkEventType :: Text -> (Text, Value)
+mkEventType name = "event_type" .= name
 
 data GoldChange = GoldChange {
     gTimestamp :: Timestamp
@@ -77,7 +80,7 @@ newtype MatchId = MatchId Integer
 
 instance ToJSON MatchId where
     toJSON (MatchId matchId) =
-        object ["matchId" .= matchId]
+        object ["match_seq_id" .= matchId]
 
 newtype Timestamp = Timestamp Integer
   deriving (Show, Generic, ToJSON, FromJSON)
