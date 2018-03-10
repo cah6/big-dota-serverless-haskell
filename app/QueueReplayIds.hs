@@ -21,7 +21,7 @@ import GHC.Generics
 import Data.Monoid ((<>))
 import Data.Coerce (coerce)
 import Network.Google
-import Network.Google.Resource.BigQuery.TableData.InsertAll (tableDataInsertAll)
+import Network.Google.Resource.BigQuery.TableData.InsertAll
 import Network.Google.BigQuery.Types
 import Control.Lens.Operators ((?=), (.~), (<&>))
 import Control.Lens.At (at)
@@ -41,6 +41,7 @@ handler :: Data.Aeson.Value -> IO [Int]
 handler evt = do
   putStrLn "This should go to logs"
   print evt
+  run
   pure [1, 2, 3]
 
 toRows :: MatchId -> [ParsedEvent] -> [Value]
@@ -54,6 +55,9 @@ toBigQueryRow _ = undefined
 toInsertRequest :: [TableDataInsertAllRequestRowsItem] -> TableDataInsertAllRequest
 toInsertRequest rows = tdiarRows .~ rows $ tableDataInsertAllRequest
 
+toInsertAll :: TableDataInsertAllRequest -> TableDataInsertAll
+toInsertAll req = tableDataInsertAll req "replay_data" "big-dota" "replay_data_v1"
+
 testEvent = E1 $ ItemPurchase (Timestamp 123456) (Hero "pugna") (Item "mek")
 
 test :: ParsedEvent -> IO ()
@@ -63,19 +67,17 @@ run :: IO ()
 run = do
   let matchId = "1234567"
   parsedResults <- T.fold callParser foldParser
-  let firstFew = take 2 parsedResults
-  let request = tableDataInsertAll (mkInsertRequest firstFew) "replay_data" "big_dota" "replay_data_v1"
+  let request = toInsertAll (mkInsertRequest parsedResults)
+  runRequest request
   return ()
 
-runRequest :: TableDataInsertAllRequest -> IO (Rs TableDataInsertAllRequest)
+runRequest :: TableDataInsertAll -> IO (Rs TableDataInsertAll)
 runRequest req = do
   manager <- newManager defaultManagerSettings
   logger  <- newLogger Debug stdout
   creds <- getApplicationDefault manager
-  env <- newEnv <&> (envLogger .~ logger) . (envScopes .~ bigQueryScope ! bigQueryInsertDataScope ! cloudPlatformScope)
-  -- env  <- newEnvWith creds logger manager <&> envScopes .~ (bigQueryScope ! bigQueryInsertDataScope ! cloudPlatformScope)
-  -- runResourceT . runGoogle env $ send req
-  return undefined
+  env <- newEnv <&> (envLogger .~ logger) <&> envScopes .~ (bigQueryScope ! bigQueryInsertDataScope ! cloudPlatformScope)
+  runResourceT . runGoogle env $ send req
 
 mkInsertRequest :: [ParsedEvent] -> TableDataInsertAllRequest
 mkInsertRequest = toInsertRequest . fmap toBigQueryRow . toRows (MatchId 12345)

@@ -4,6 +4,7 @@ package:
   include:
     - ~/.config/gcloud/application_default_credentials.json
     - ../big-dota-replay-parser-java/build/libs/dota-replay-parser-1.0-SNAPSHOT.jar
+    - ../big-dota-replay-parser-java/resources/basic_replay.dem
 
 provider:
   name: aws
